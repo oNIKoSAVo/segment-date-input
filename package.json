@@ -1,0 +1,22 @@
+{
+  "name": "@onikosavo/segment-date-input",
+  "version": "0.1.0",
+  "description": "Segmented date input web component",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "web-component",
+    "date-input",
+    "custom-element",
+    "segment-date-input"
+  ],
+  "license": "MIT"
+}
