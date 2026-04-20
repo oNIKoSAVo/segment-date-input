@@ -1,15 +1,20 @@
 {
   "name": "@onikosavo/segment-date-input",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Segmented date input web component",
   "type": "module",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "exports": {
-    ".": "./index.js"
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./index.js"
+    }
   },
   "files": [
     "index.js",
     "src",
+    "types",
     "README.md"
   ],
   "keywords": [
