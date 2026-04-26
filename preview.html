@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>segment-date-input · Technical Preview</title>
+	<style>
+		:root {
+			--bg: #f6f7f4;
+			--surface: #ffffff;
+			--surface-soft: #f1f4ef;
+			--text: #101a14;
+			--muted: #637066;
+			--border: #d9e1d7;
+			--border-strong: #bbc9b7;
+			--accent: #24723c;
+			--accent-dark: #17542a;
+			--danger: #b42318;
+			--danger-bg: #fff3f1;
+			--success: #157f3b;
+			--success-bg: #eefbf2;
+			--warning: #9a6700;
+			--warning-bg: #fff8df;
+			--code-bg: #101914;
+			--code-text: #eaf3eb;
+			--shadow: 0 18px 50px rgba(23, 40, 28, 0.08);
+			--radius: 18px;
+			font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			color: var(--text);
+			background:
+				radial-gradient(circle at 10% -10%, rgba(36, 114, 60, 0.12), transparent 34rem),
+				linear-gradient(180deg, #fbfcfa 0%, var(--bg) 42%);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html {
+			scroll-behavior: smooth;
+		}
+
+		body {
+			margin: 0;
+			min-height: 100vh;
+		}
+
+		button,
+		input {
+			font: inherit;
+		}
+
+		code {
+			padding: 2px 6px;
+			border-radius: 7px;
+			background: #e9eee6;
+			color: #1f3327;
+			font-family: "JetBrains Mono", Consolas, monospace;
+			font-size: 0.92em;
+		}
+
+		.shell {
+			display: grid;
+			grid-template-columns: 260px minmax(0, 1fr);
+			min-height: 100vh;
+		}
+
+		.sidebar {
+			position: sticky;
+			top: 0;
+			height: 100vh;
+			padding: 28px 18px;
+			border-right: 1px solid var(--border);
+			background: rgba(255, 255, 255, 0.78);
+			backdrop-filter: blur(18px);
+		}
+
+		.brand {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 28px;
+		}
+
+		.logo {
+			display: grid;
+			width: 42px;
+			height: 42px;
+			place-items: center;
+			border-radius: 14px;
+			color: #fff;
+			background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+			box-shadow: 0 10px 22px rgba(36, 114, 60, 0.2);
+			font-weight: 800;
+		}
+
+		.brand-title {
+			margin: 0;
+			font-size: 15px;
+			line-height: 1.2;
+		}
+
+		.brand-subtitle {
+			margin: 3px 0 0;
+			color: var(--muted);
+			font-size: 12px;
+		}
+
+		.nav {
+			display: grid;
+			gap: 6px;
+		}
+
+		.nav a {
+			display: block;
+			padding: 10px 12px;
+			border-radius: 12px;
+			color: #2d3a31;
+			text-decoration: none;
+			font-size: 14px;
+		}
+
+		.nav a:hover {
+			background: var(--surface-soft);
+		}
+
+		.content {
+			min-width: 0;
+			padding: 36px;
+		}
+
+		.hero {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+			gap: 22px;
+			align-items: stretch;
+			margin-bottom: 22px;
+		}
+
+		.hero-card,
+		.card {
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			background: rgba(255, 255, 255, 0.88);
+			box-shadow: var(--shadow);
+		}
+
+		.hero-card {
+			padding: 30px;
+		}
+
+		.kicker {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 18px;
+			padding: 7px 10px;
+			border: 1px solid #cfe0cd;
+			border-radius: 999px;
+			color: var(--accent-dark);
+			background: #f3fbf4;
+			font-size: 13px;
+			font-weight: 650;
+		}
+
+		.kicker::before {
+			content: "";
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--accent);
+		}
+
+		h1,
+		h2,
+		h3 {
+			margin: 0;
+			letter-spacing: -0.03em;
+		}
+
+		h1 {
+			max-width: 780px;
+			font-size: clamp(34px, 5vw, 58px);
+			line-height: 0.98;
+		}
+
+		h2 {
+			font-size: 24px;
+			line-height: 1.2;
+		}
+
+		h3 {
+			font-size: 16px;
+			line-height: 1.35;
+		}
+
+		.lead {
+			max-width: 760px;
+			margin: 18px 0 0;
+			color: var(--muted);
+			font-size: 17px;
+			line-height: 1.65;
+		}
+
+		.meta-grid {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 12px;
+			margin-top: 26px;
+		}
+
+		.meta {
+			padding: 13px 14px;
+			border: 1px solid var(--border);
+			border-radius: 14px;
+			background: var(--surface);
+		}
+
+		.meta span {
+			display: block;
+			color: var(--muted);
+			font-size: 12px;
+		}
+
+		.meta strong {
+			display: block;
+			margin-top: 5px;
+			font-size: 14px;
+		}
+
+		.status-card {
+			padding: 22px;
+		}
+
+		.status-title {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			margin-bottom: 14px;
+		}
+
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			min-height: 28px;
+			padding: 4px 10px;
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: 700;
+			white-space: nowrap;
+		}
+
+		.badge.idle {
+			color: var(--warning);
+			background: var(--warning-bg);
+		}
+
+		.badge.ok {
+			color: var(--success);
+			background: var(--success-bg);
+		}
+
+		.badge.error {
+			color: var(--danger);
+			background: var(--danger-bg);
+		}
+
+		.status-box {
+			min-height: 160px;
+			padding: 14px;
+			border: 1px solid var(--border);
+			border-radius: 14px;
+			background: #fbfcfa;
+			color: #28342c;
+			font-family: "JetBrains Mono", Consolas, monospace;
+			font-size: 12px;
+			line-height: 1.55;
+			white-space: pre-wrap;
+			overflow-wrap: anywhere;
+		}
+
+		.section {
+			margin-top: 22px;
+		}
+
+		.section-head {
+			display: flex;
+			align-items: flex-end;
+			justify-content: space-between;
+			gap: 18px;
+			margin-bottom: 14px;
+		}
+
+		.section-head p {
+			max-width: 740px;
+			margin: 7px 0 0;
+			color: var(--muted);
+			line-height: 1.55;
+		}
+
+		.card {
+			padding: 22px;
+		}
+
+		.grid-2 {
+			display: grid;
+			grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+			gap: 18px;
+			align-items: start;
+		}
+
+		.stack {
+			display: grid;
+			gap: 14px;
+		}
+
+		.field-row {
+			display: grid;
+			grid-template-columns: 190px minmax(0, 1fr);
+			gap: 16px;
+			align-items: center;
+			padding: 14px;
+			border: 1px solid var(--border);
+			border-radius: 16px;
+			background: #fbfcfa;
+		}
+
+		.label {
+			min-width: 0;
+		}
+
+		.label strong {
+			display: block;
+			font-size: 14px;
+		}
+
+		.label span {
+			display: block;
+			margin-top: 4px;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.35;
+		}
+
+		segment-date-input {
+			display: block;
+			width: 100%;
+		}
+
+		segment-date-input::part(input-date) {
+			min-height: 48px;
+			padding: 0 14px;
+			border: 1px solid var(--border-strong);
+			border-radius: 13px;
+			background: var(--surface);
+			color: var(--text);
+			font-size: 15px;
+			transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+		}
+
+		segment-date-input::part(input-date):focus {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 4px rgba(36, 114, 60, 0.12);
+			background: #fff;
+		}
+
+		segment-date-input::part(input-date):disabled {
+			border-color: #d7ded5;
+			background: #f2f5f0;
+			color: #7b867d;
+		}
+
+		.native {
+			width: 100%;
+			min-height: 48px;
+			padding: 0 14px;
+			border: 1px solid var(--border-strong);
+			border-radius: 13px;
+			background: var(--surface);
+			color: var(--text);
+		}
+
+		.controls {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			margin-top: 16px;
+		}
+
+		.button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 40px;
+			padding: 9px 14px;
+			border: 0;
+			border-radius: 12px;
+			color: #fff;
+			background: var(--accent);
+			cursor: pointer;
+			font-weight: 650;
+			transition: transform 0.12s ease, filter 0.12s ease;
+		}
+
+		.button:hover {
+			filter: brightness(0.96);
+		}
+
+		.button:active {
+			transform: translateY(1px);
+		}
+
+		.button.secondary {
+			color: #203126;
+			background: #e8efe5;
+		}
+
+		.button.ghost {
+			color: var(--accent-dark);
+			background: transparent;
+			border: 1px solid #bcd4bd;
+		}
+
+		.panel {
+			border: 1px solid var(--border);
+			border-radius: 16px;
+			background: #fbfcfa;
+			overflow: hidden;
+		}
+
+		.panel-head {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+			padding: 12px 14px;
+			border-bottom: 1px solid var(--border);
+			background: var(--surface-soft);
+		}
+
+		.panel-head span {
+			color: var(--muted);
+			font-size: 12px;
+		}
+
+		pre {
+			margin: 0;
+		}
+
+		.code {
+			padding: 16px;
+			background: var(--code-bg);
+			color: var(--code-text);
+			font-family: "JetBrains Mono", Consolas, monospace;
+			font-size: 13px;
+			line-height: 1.6;
+			overflow: auto;
+			tab-size: 2;
+		}
+
+		.output {
+			padding: 14px;
+			background: #fbfcfa;
+			color: #26322b;
+			font-family: "JetBrains Mono", Consolas, monospace;
+			font-size: 12px;
+			line-height: 1.55;
+			white-space: pre-wrap;
+			overflow: auto;
+		}
+
+		.output.state {
+			max-height: 430px;
+		}
+
+		.output.log {
+			max-height: 360px;
+		}
+
+		.api-table {
+			width: 100%;
+			border-collapse: collapse;
+			overflow: hidden;
+			border: 1px solid var(--border);
+			border-radius: 16px;
+			background: var(--surface);
+		}
+
+		.api-table th,
+		.api-table td {
+			padding: 13px 14px;
+			border-bottom: 1px solid var(--border);
+			text-align: left;
+			vertical-align: top;
+			font-size: 14px;
+		}
+
+		.api-table th {
+			color: #29362d;
+			background: var(--surface-soft);
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+		}
+
+		.api-table tr:last-child td {
+			border-bottom: 0;
+		}
+
+		.api-table td:nth-child(2),
+		.api-table td:nth-child(3) {
+			color: var(--muted);
+		}
+
+		.notice {
+			padding: 14px 16px;
+			border: 1px solid #ead799;
+			border-radius: 15px;
+			background: var(--warning-bg);
+			color: #5f4300;
+			line-height: 1.5;
+		}
+
+		.footer {
+			padding: 32px 0 8px;
+			color: var(--muted);
+			font-size: 13px;
+		}
+
+		@media (max-width: 1120px) {
+			.shell {
+				grid-template-columns: 1fr;
+			}
+
+			.sidebar {
+				position: static;
+				height: auto;
+				padding: 18px 22px;
+			}
+
+			.nav {
+				display: flex;
+				flex-wrap: wrap;
+			}
+
+			.content {
+				padding: 24px;
+			}
+
+			.hero,
+			.grid-2 {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (max-width: 720px) {
+			.content {
+				padding: 16px;
+			}
+
+			.hero-card,
+			.card,
+			.status-card {
+				padding: 18px;
+			}
+
+			.meta-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.field-row {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="shell">
+		<aside class="sidebar">
+			<div class="brand">
+				<div class="logo">SD</div>
+				<div>
+					<p class="brand-title">segment-date-input</p>
+					<p class="brand-subtitle">Technical preview</p>
+				</div>
+			</div>
+
+			<nav class="nav" aria-label="Навигация">
+				<a href="#runtime">Runtime</a>
+				<a href="#playground">Playground</a>
+				<a href="#usage">Usage</a>
+				<a href="#api">API</a>
+				<a href="#events">Events</a>
+				<a href="#form">FormData</a>
+			</nav>
+		</aside>
+
+		<main class="content">
+			<section class="hero" id="runtime">
+				<div class="hero-card">
+					<div class="kicker">Web Component · segmented date · ISO value</div>
+					<h1>Техническая проверка кастомного date input</h1>
+					<p class="lead">
+						Компонент отображает дату сегментами <code>дд/мм/гггг</code>, принимает ввод с клавиатуры,
+						хранит значение в ISO-формате <code>yyyy-mm-dd</code> и отправляет события <code>input</code> / <code>change</code>.
+					</p>
+
+					<div class="meta-grid">
+						<div class="meta">
+							<span>Custom element</span>
+							<strong>&lt;segment-date-input&gt;</strong>
+						</div>
+						<div class="meta">
+							<span>Displayed format</span>
+							<strong>дд/мм/гггг</strong>
+						</div>
+						<div class="meta">
+							<span>Value format</span>
+							<strong>YYYY-MM-DD</strong>
+						</div>
+					</div>
+				</div>
+
+				<div class="status-card">
+					<div class="status-title">
+						<h2>Runtime status</h2>
+						<span id="runtime-badge" class="badge idle">loading</span>
+					</div>
+					<div id="status" class="status-box">Module loading...</div>
+				</div>
+			</section>
+
+			<section class="section grid-2" id="playground">
+				<div>
+					<div class="section-head">
+						<div>
+							<h2>Playground</h2>
+							<p>Проверка основных состояний, программного изменения значения, disabled-режима и ограничения диапазона.</p>
+						</div>
+					</div>
+
+					<div class="card">
+						<div class="stack">
+							<div class="field-row">
+								<div class="label">
+									<strong>Empty</strong>
+									<span>Без начального значения</span>
+								</div>
+								<segment-date-input id="date-main" name="dateMain" placeholder="Дата возврата" title="Дата возврата" value=""></segment-date-input>
+							</div>
+
+							<div class="field-row">
+								<div class="label">
+									<strong>Initial value</strong>
+									<span><code>value="2026-04-26"</code></span>
+								</div>
+								<segment-date-input id="date-filled" name="dateFilled" placeholder="Дата договора" title="Дата договора" value="2026-04-26"></segment-date-input>
+							</div>
+
+							<div class="field-row">
+								<div class="label">
+									<strong>Min / max</strong>
+									<span><code>2026-01-01</code> → <code>2026-12-31</code></span>
+								</div>
+								<segment-date-input id="date-limited" name="dateLimited" placeholder="Дата платежа" title="Дата платежа" min="2026-01-01" max="2026-12-31"></segment-date-input>
+							</div>
+
+							<div class="field-row">
+								<div class="label">
+									<strong>Disabled</strong>
+									<span>Значение есть, ввод заблокирован</span>
+								</div>
+								<segment-date-input id="date-disabled" name="dateDisabled" placeholder="Недоступная дата" title="Недоступная дата" disabled value="2026-02-15"></segment-date-input>
+							</div>
+
+							<div class="field-row">
+								<div class="label">
+									<strong>Native input</strong>
+									<span>Для сравнения поведения браузера</span>
+								</div>
+								<input id="native-date" class="native" type="date" min="2026-01-01" max="2026-12-31" value="2026-04-26" />
+							</div>
+						</div>
+
+						<div class="controls">
+							<button class="button" type="button" data-set="2026-04-01">Set 2026-04-01</button>
+							<button class="button" type="button" data-set="2026-12-31">Set 2026-12-31</button>
+							<button class="button secondary" type="button" data-clear>Clear</button>
+							<button class="button ghost" type="button" data-toggle-disabled>Toggle disabled</button>
+							<button class="button ghost" type="button" data-select-month>Select month</button>
+							<button class="button ghost" type="button" data-select-year>Select year</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="stack">
+					<div class="panel">
+						<div class="panel-head">
+							<h3>Current state</h3>
+							<span>live</span>
+						</div>
+						<pre id="state" class="output state">{}</pre>
+					</div>
+
+					<div class="panel" id="events">
+						<div class="panel-head">
+							<h3>Event log</h3>
+							<span>input / change / focus / blur</span>
+						</div>
+						<pre id="log" class="output log"></pre>
+					</div>
+				</div>
+			</section>
+
+			<section class="section grid-2" id="usage">
+				<div class="card">
+					<div class="section-head">
+						<div>
+							<h2>Usage</h2>
+							<p>Библиотека регистрирует web component через side-effect import.</p>
+						</div>
+					</div>
+
+					<div class="panel">
+						<div class="panel-head">
+							<h3>Import</h3>
+							<span>app entry</span>
+						</div>
+						<pre class="code"><code>import "segment-date-input";</code></pre>
+					</div>
+
+					<div class="panel" style="margin-top: 14px;">
+						<div class="panel-head">
+							<h3>HTML</h3>
+							<span>custom element</span>
+						</div>
+						<pre class="code"><code>&lt;segment-date-input
+  value="2026-04-26"
+  min="2000-01-01"
+  max="2026-12-31"
+  placeholder="Дата"
+  title="Дата"
+&gt;&lt;/segment-date-input&gt;</code></pre>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="section-head">
+						<div>
+							<h2>SolidJS example</h2>
+							<p>Значение хранится в ISO-формате и обновляется через событие <code>input</code>.</p>
+						</div>
+					</div>
+
+					<div class="panel">
+						<div class="panel-head">
+							<h3>TSX</h3>
+							<span>controlled value</span>
+						</div>
+						<pre class="code"><code>&lt;segment-date-input
+  value={props.value}
+  min={min()}
+  max={max()}
+  placeholder={props.label}
+  title={props.label}
+  disabled={props.disabled}
+  onInput={(ev) =&gt; {
+    const value = ev.currentTarget.value;
+    props.setValue(value);
+  }}
+/&gt;</code></pre>
+					</div>
+				</div>
+			</section>
+
+			<section class="section" id="api">
+				<div class="section-head">
+					<div>
+						<h2>Attributes / properties</h2>
+						<p>Атрибуты синхронизируются с одноимёнными свойствами компонента.</p>
+					</div>
+				</div>
+
+				<table class="api-table">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Type</th>
+							<th>Default</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><code>value</code></td>
+							<td><code>string</code></td>
+							<td><code>""</code></td>
+							<td>Текущее значение даты в формате <code>YYYY-MM-DD</code>.</td>
+						</tr>
+						<tr>
+							<td><code>min</code></td>
+							<td><code>string</code></td>
+							<td><code>2000-01-01</code></td>
+							<td>Минимально допустимая дата. Применяется при нормализации значения.</td>
+						</tr>
+						<tr>
+							<td><code>max</code></td>
+							<td><code>string</code></td>
+							<td>current date</td>
+							<td>Максимально допустимая дата. По умолчанию используется текущая дата.</td>
+						</tr>
+						<tr>
+							<td><code>disabled</code></td>
+							<td><code>boolean</code></td>
+							<td><code>false</code></td>
+							<td>Блокирует ввод и фокусируемое поведение внутреннего input.</td>
+						</tr>
+						<tr>
+							<td><code>placeholder</code></td>
+							<td><code>string</code></td>
+							<td><code>""</code></td>
+							<td>Передаётся во внутренний input.</td>
+						</tr>
+						<tr>
+							<td><code>title</code></td>
+							<td><code>string</code></td>
+							<td><code>""</code></td>
+							<td>Передаётся во внутренний input.</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+
+			<section class="section grid-2">
+				<div class="card">
+					<div class="section-head">
+						<div>
+							<h2>Methods</h2>
+							<p>Публичные методы доступны через DOM-ссылку на элемент.</p>
+						</div>
+					</div>
+
+					<table class="api-table">
+						<thead>
+							<tr>
+								<th>Method</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>focus()</code></td>
+								<td>Фокусирует внутренний input.</td>
+							</tr>
+							<tr>
+								<td><code>selectSegment(segment)</code></td>
+								<td>Выделяет сегмент <code>day</code>, <code>month</code> или <code>year</code>.</td>
+							</tr>
+							<tr>
+								<td><code>clear()</code></td>
+								<td>Очищает значение, сбрасывает draft и отправляет события.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class="card">
+					<div class="section-head">
+						<div>
+							<h2>Styling</h2>
+							<p>Внутренний input открыт через <code>part="input-date"</code>.</p>
+						</div>
+					</div>
+
+					<div class="panel">
+						<div class="panel-head">
+							<h3>CSS</h3>
+							<span>::part</span>
+						</div>
+						<pre class="code"><code>segment-date-input::part(input-date) {
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #bbc9b7;
+  border-radius: 13px;
+}
+
+segment-date-input::part(input-date):focus {
+  border-color: #24723c;
+  box-shadow: 0 0 0 4px rgb(36 114 60 / 12%);
+}</code></pre>
+					</div>
+				</div>
+			</section>
+
+			<section class="section grid-2" id="form">
+				<div class="card">
+					<div class="section-head">
+						<div>
+							<h2>FormData check</h2>
+							<p>Тест показывает, участвует ли компонент в сборе данных формы.</p>
+						</div>
+					</div>
+
+					<form id="test-form" class="stack">
+						<div class="field-row">
+							<div class="label">
+								<strong>Form field</strong>
+								<span><code>name="dateForm"</code></span>
+							</div>
+							<segment-date-input id="date-form" name="dateForm" placeholder="Дата для FormData" title="Дата для FormData" value="2026-04-26"></segment-date-input>
+						</div>
+
+						<div class="controls">
+							<button class="button" type="submit">Collect FormData</button>
+						</div>
+					</form>
+
+					<div class="notice" style="margin-top: 16px;">
+						Если результат FormData пустой, компонент не является form-associated custom element.
+						Для нативного участия в форме нужен <code>static formAssociated = true</code> и <code>ElementInternals</code>.
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="section-head">
+						<div>
+							<h2>Event payload</h2>
+							<p>Компонент отправляет <code>CustomEvent</code> с <code>detail.value</code>.</p>
+						</div>
+					</div>
+
+					<div class="panel">
+						<div class="panel-head">
+							<h3>Listener</h3>
+							<span>JS</span>
+						</div>
+						<pre class="code"><code>dateInput.addEventListener("input", (event) =&gt; {
+  console.log(event.detail.value);
+});
+
+dateInput.addEventListener("change", (event) =&gt; {
+  console.log(event.detail.value);
+});</code></pre>
+					</div>
+				</div>
+			</section>
+
+			<footer class="footer">segment-date-input · local technical page</footer>
+		</main>
+	</div>
+
+	<script type="module">
+		const status = document.querySelector("#status");
+		const badge = document.querySelector("#runtime-badge");
+		const state = document.querySelector("#state");
+		const log = document.querySelector("#log");
+		const params = new URLSearchParams(location.search);
+		const modulePath = params.get("module") || `./src/segment-date-input.js?v=${Date.now()}`;
+
+		const setRuntimeStatus = (message, type) => {
+			status.textContent = message;
+			badge.textContent = type;
+			badge.className = `badge ${type}`;
+		};
+
+		const addLog = (message) => {
+			const now = new Date().toLocaleTimeString("ru-RU", {hour12: false});
+			log.textContent = `[${now}] ${message}\n${log.textContent}`;
+		};
+
+		const readInput = (el) => ({
+			id: el.id,
+			name: el.getAttribute("name"),
+			valueProperty: el.value ?? null,
+			valueAttribute: el.getAttribute("value"),
+			min: el.getAttribute("min"),
+			max: el.getAttribute("max"),
+			disabledProperty: Boolean(el.disabled),
+			disabledAttribute: el.hasAttribute("disabled"),
+		});
+
+		const updateState = () => {
+			const inputs = [...document.querySelectorAll("segment-date-input")].map(readInput);
+			const native = document.querySelector("#native-date");
+
+			state.textContent = JSON.stringify({
+				modulePath,
+				customElementsDefined: Boolean(customElements.get("segment-date-input")),
+				inputs,
+				nativeInput: {
+					value: native.value,
+					min: native.min,
+					max: native.max,
+				},
+			}, null, 2);
+		};
+
+		try {
+			await import(modulePath);
+			await customElements.whenDefined("segment-date-input");
+
+			setRuntimeStatus(
+				`Custom element registered\nmodule: ${modulePath}`,
+				"ok",
+			);
+		} catch (error) {
+			setRuntimeStatus(
+				`Custom element registration failed\nmodule: ${modulePath}\n\n${error?.message || error}`,
+				"error",
+			);
+		}
+
+		const mainInput = document.querySelector("#date-main");
+
+		document.querySelectorAll("segment-date-input").forEach((el) => {
+			["input", "change", "focus", "blur", "keydown", "keyup"].forEach((eventName) => {
+				el.addEventListener(eventName, (event) => {
+					const detail = event.detail ? JSON.stringify(event.detail) : "{}";
+					const key = "key" in event ? ` key=${event.key}` : "";
+					addLog(`${eventName}: #${el.id} value=${JSON.stringify(el.value ?? null)} detail=${detail}${key}`);
+					updateState();
+				});
+			});
+		});
+
+		document.querySelectorAll("[data-set]").forEach((button) => {
+			button.addEventListener("click", () => {
+				const value = button.dataset.set;
+
+				mainInput.value = value;
+				mainInput.setAttribute("value", value);
+				mainInput.dispatchEvent(new CustomEvent("input", {
+					detail: {value},
+					bubbles: true,
+					composed: true,
+				}));
+
+				updateState();
+			});
+		});
+
+		document.querySelector("[data-clear]").addEventListener("click", async () => {
+			if (typeof mainInput.clear === "function") {
+				await mainInput.clear();
+			} else {
+				mainInput.value = "";
+				mainInput.removeAttribute("value");
+			}
+
+			updateState();
+		});
+
+		document.querySelector("[data-toggle-disabled]").addEventListener("click", () => {
+			mainInput.disabled = !mainInput.disabled;
+
+			if (mainInput.disabled) {
+				mainInput.setAttribute("disabled", "");
+			} else {
+				mainInput.removeAttribute("disabled");
+			}
+
+			updateState();
+		});
+
+		document.querySelector("[data-select-month]").addEventListener("click", () => {
+			mainInput.selectSegment?.("month");
+			updateState();
+		});
+
+		document.querySelector("[data-select-year]").addEventListener("click", () => {
+			mainInput.selectSegment?.("year");
+			updateState();
+		});
+
+		document.querySelector("#native-date").addEventListener("input", updateState);
+
+		document.querySelector("#test-form").addEventListener("submit", (event) => {
+			event.preventDefault();
+
+			const formData = new FormData(event.currentTarget);
+			const data = Object.fromEntries(formData.entries());
+
+			addLog(`FormData: ${JSON.stringify(data)}`);
+			updateState();
+		});
+
+		updateState();
+	</script>
+</body>
+</html>
