@@ -286,9 +286,9 @@ class SegmentDateInput extends HTMLElement {
 	}
 
 	_getSegmentPlaceholder(segment) {
-		if (segment === "day") return "dd";
-		if (segment === "month") return "mm";
-		return "yyyy";
+		if (segment === "day") return "дд";
+		if (segment === "month") return "мм";
+		return "гггг";
 	}
 
 	_buildSegmentDisplay(segment, value, touched, inFocus) {
@@ -318,7 +318,7 @@ class SegmentDateInput extends HTMLElement {
 		const month = this._buildSegmentDisplay("month", draft.month, touched.month, inFocus);
 		const year = this._buildSegmentDisplay("year", draft.year, touched.year, inFocus);
 
-		return `${day || "dd"}/${month || "mm"}/${year || "yyyy"}`;
+		return `${day || "дд"}/${month || "мм"}/${year || "гггг"}`;
 	}
 
 	_clampSegmentValue(segment, value) {
